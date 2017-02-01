@@ -31,10 +31,19 @@ Game On! communicates with this service (a room) over WebSockets using the [Game
 1. Create your own fork of this repository ([what's a fork?](https://help.github.com/articles/fork-a-repo/))
 2. Create a local clone of your fork ([Cloning a repository](https://help.github.com/articles/cloning-a-repository/))
 
+## Add your own Watson Alchemy API key to the code
+1. Create a Bluemix account
+2. Create an instance of the Alchemy API service... "free' version is fine for checking out the service using this GameOn! room
+3. Open RoomImplementation.java 
+    Note: this is located at src/main/java/org/gameontext/sample
+4. Place your Watson Alchemy API key in the `apikey` String assignment within the `processCommand` method
+    Note: this is located in the `/news` case block
+
 ## Build the service locally
 
 1. `cd sample-room-java`
-2. `mvn install`
+2. `mvn install -DskipTests`
+    Note: currently the Room Description changes that are permanently part of this java room will require you to skip the tests that are testing on hard coded descriptions of a room
 3. `mvn liberty:run-server`
 
 After running this, the server will be running locally at [http://localhost:9080/](http://localhost:9080/).
@@ -137,4 +146,10 @@ The following shows what goals run at which phases in the [default Maven lifecyc
 | n/a                   | liberty-maven-plugin    | n/a               | runnable         | Just sets properties to indicate that a runnable JAR should be made rather than a ZIP when packaging the server |
 | n/a                   | liberty-maven-plugin    | n/a               | downloadLiberty  | Just sets properties that are used in the install-server goal to installs the Liberty runtime. Doesn't run if liberty.install is set to an existing install of Liberty |
 | n/a                   | liberty-maven-plugin    | n/a               | existing-install | Just sets properties that are used in the other Liberty goals to point to an existing Liberty install. Only runs if liberty.install is set to an existing install of Liberty |
+
+
+### Watson News Service
+
+1. Finally, visit your Watson news room and start querying
+    Note: This room has a command "/news" that will take the name of a company as an argument. 
 

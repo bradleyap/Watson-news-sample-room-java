@@ -41,8 +41,8 @@ public class RoomDescription {
     private final JsonArray EMPTY_INVENTORY = Json.createArrayBuilder().build();
 
     private String name = "nickName";
-    private String fullName = "A room with no full name";
-    private String description = "An undescribed room (or perhaps the data hasn't been fetched from the map)";
+    private String fullName = "Watson Alchemy Data News Room";
+    private String description = "A place to get current News about companies of interest to you";
 
     private Map<String, String> commands = new ConcurrentHashMap<>();
     private JsonObject commandObj = null;
