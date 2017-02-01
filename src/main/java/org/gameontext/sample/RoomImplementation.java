@@ -23,12 +23,26 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonArray;
 import javax.websocket.Session;
+import java.util.Iterator;
 
 import org.gameontext.sample.map.client.MapClient;
 import org.gameontext.sample.protocol.Message;
 import org.gameontext.sample.protocol.RoomEndpoint;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+
+import java.net.*;
+
 
 /**
  * Here is where your room implementation lives. The WebSocket endpoint
@@ -64,6 +78,8 @@ public class RoomImplementation {
 
     protected RoomDescription roomDescription = new RoomDescription();
 
+    protected String currentQuery = "";
+
     @PostConstruct
     protected void postConstruct() {
 
@@ -77,6 +93,7 @@ public class RoomImplementation {
 
         // Customize the room
         roomDescription.addCommand("/ping", "Does this work?");
+        roomDescription.addCommand("/news", "Query the Waston Alchemy News Service to get current information on a company; `e.g.: /news IBM`");
 
         Log.log(Level.INFO, this, "Room initialized: {0}", roomDescription);
     }
@@ -238,6 +255,48 @@ public class RoomImplementation {
                             Message.createSpecificEvent(userId, LOOK_UNKNOWN));
                 }
                 break;
+            case "/news":
+                // Custom command! /news is added to the room description in the @PostConstruct method
+                // See RoomCommandsTest#testHandlePing*
+
+                String msg = "No can read Watson news";
+		String textKeywd = remainder.replaceAll("(^\n | ^ +)","");
+		textKeywd = textKeywd.replaceAll("(\n$| +$)","");  
+		String query = "";
+		try{
+			//based on:
+			//https://access.alchemyapi.com/calls/data/GetNews?apikey=YOUR_API_KEY_HERE&return=enriched.url.title,enriched.url.url&start=1484611200&end=1485298800&q.enriched.url.entities.entity=|text=IBM,type=company|&count=25&outputMode=json
+			String baseURL = "https://gateway-a.watsonplatform.net/calls/data/GetNews";
+			String apikey = "YOUR_KEY_HERE";
+			String outputMode = "json";
+			String start = "now-1d";
+			String end = "now";
+			String count = "100";
+			//String q_enriched_url_enrichedTitle_relations_relation = "|action.verb.text=";
+			String q_enriched_url_entities_entity = "|text=";
+			String type = "company";
+			String re_turn = "enriched.url.title,enriched.url.url";
+			currentQuery = query = baseURL + "?apikey=" + apikey + "&outputMode=" + outputMode + "&start=" + start + "&end=" + end + "&count=" + 
+					count + "&q.enriched.url.entities.entity=" + q_enriched_url_entities_entity +
+					textKeywd + "|&return=" + re_turn;
+			URL url = new URL(query);
+			InputStream is = url.openStream();
+			msg = extractURLsAndTitles(is);
+		}
+		catch(java.net.MalformedURLException e){
+
+		}
+		catch(IOException ioe){
+
+		}
+
+                if ( remainder == null ) {
+		    endpoint.sendMessage(session,Message.createBroadcastEvent("The '/news' command expects a company name after it."));
+                } else {
+                    endpoint.sendMessage(session,
+                        Message.createBroadcastEvent("Watson news response to " + username + ":\n " + msg));
+                }
+                break;
 
             case "/ping":
                 // Custom command! /ping is added to the room description in the @PostConstruct method
@@ -314,5 +373,69 @@ public class RoomImplementation {
 
     public boolean ok() {
         return mapClient.ok();
+    }
+
+    public String extractURLsAndTitles(InputStream is){
+        String results = "";
+        JsonReader jsonReader = Json.createReader(is);
+        JsonObject jsonob = jsonReader.readObject();
+        if(jsonob.containsKey("result")){
+            if((jsonob.getJsonObject("result")).containsKey("docs")){
+                JsonArray arr = (JsonArray)jsonob.getJsonObject("result").get("docs");
+                if(arr != null){
+                    try{
+		        for(int i = 0; !arr.isNull(i); i++){
+                            //double quotes surround getString return values
+	                    results += "[" + arr.getJsonObject(i).getJsonObject("source").getJsonObject("enriched").getJsonObject("url").getString("title","title") + "]";
+	                    results += "(" + arr.getJsonObject(i).getJsonObject("source").getJsonObject("enriched").getJsonObject("url").getString("url","not available") + ")  \n";
+		        }
+                    }
+                    catch(IndexOutOfBoundsException e){
+			
+                    }
+                }
+		else results += "problem with this query: " + currentQuery;
+            }
+        }
+        else results += "problem with this query: " + currentQuery;
+        jsonReader.close();
+        return results;
+    }
+
+
+    private static String getStringFromInputStream(InputStream stream) {
+        BufferedReader br = null;
+        StringBuilder sb = new StringBuilder();
+        int nullAttempts = 0;
+        int openCurlies = 0;
+        int closingCurlies = 0;
+        String line;
+        try {
+            br = new BufferedReader(new InputStreamReader(stream));
+            while(nullAttempts < 100000){
+                while ((line = br.readLine()) != null) {
+                    for(int i=0; i<line.length(); i++){
+                        if(line.charAt(i) == '}')closingCurlies++;
+                        if(line.charAt(i) == '{')openCurlies++;
+                    }    
+                    sb.append(line);
+                }
+                nullAttempts++;
+                //json has an unmatched opening curly brace until the final closing brace
+                if(openCurlies == closingCurlies)break;
+            }
+        } 
+        catch (IOException ioe) {
+            System.out.println(ioe.getMessage());
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException ioxptn) {
+                     ioxptn.printStackTrace();
+                }
+            }
+        }
+        return sb.toString();
     }
 }
