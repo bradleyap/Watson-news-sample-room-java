@@ -52,7 +52,13 @@ After running this, the server will be running locally at [http://localhost:9080
 
 ## Interacting with the Watson News Service Room
 
-This room has a command "/news" that will precede the name of a company you will type as an argument. The text you get back in the form test page will have markdown in it, but will be formatted nicely when you follow the steps below and visitors go to the GameOn! Watson News room  
+This room has a command "/news" that will precede the name of a company you will type as an argument. 
+
+```
+/news Pivotal
+```
+
+The text you get back in the form test page will have markdown in it, but will be formatted nicely when you follow the steps below and visitors go to the GameOn! Watson News room  
 
 ## Make your room public!
 
@@ -73,7 +79,7 @@ The basic room description information for the java room is located in "RoomDesc
 
 Note: once you edit this string the automated tests will begin to fail. Remember to skip the tests when you compile: 
 
-&nbsp;&nbsp;&nbsp;&nbsp;`mvn install-DskipTests` 
+&nbsp;&nbsp;&nbsp;&nbsp;`mvn install -DskipTests` 
 
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;2. Copy the '/ping' command code to create a '/news' command
@@ -254,9 +260,4 @@ The following shows what goals run at which phases in the [default Maven lifecyc
 | n/a                   | liberty-maven-plugin    | n/a               | downloadLiberty  | Just sets properties that are used in the install-server goal to installs the Liberty runtime. Doesn't run if liberty.install is set to an existing install of Liberty |
 | n/a                   | liberty-maven-plugin    | n/a               | existing-install | Just sets properties that are used in the other Liberty goals to point to an existing Liberty install. Only runs if liberty.install is set to an existing install of Liberty |
 
-
-### Watson News Service
-
-1. Finally, visit your Watson news room and start querying
-    Note: This room has a command "/news" that will take the name of a company as an argument. 
 
