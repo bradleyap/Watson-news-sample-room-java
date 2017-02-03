@@ -120,7 +120,8 @@ import java.net.URL;
         else results += "problem with this query: " + currentQuery;
         jsonReader.close();
         return results;
-    }```
+    }
+```
 
 ## Tips
 
