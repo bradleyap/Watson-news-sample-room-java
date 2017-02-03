@@ -50,7 +50,7 @@ After running this, the server will be running locally at [http://localhost:9080
 * Visiting this page provides a small form you can use to test the WebSocket endpoint in your service directly.
 * A health URL is also defined by the service, at http://localhost:9080/health
 
-### Interacting with the Watson News Service Room
+## Interacting with the Watson News Service Room
 
 This room has a command "/news" that will precede the name of a company you will type as an argument. The text you get back in the form test page will have markdown in it, but will be formatted nicely when you follow the steps below and visitors go to the GameOn! Watson News room  
 
