@@ -149,7 +149,7 @@ InputStream is = url.openStream();
 		        }
                     }
                     catch(IndexOutOfBoundsException e){
-			System.out.println(e.getMessage());
+                        System.out.println(e.getMessage());
                     }
                 }
 		else results += "problem with this query: " + currentQuery;
