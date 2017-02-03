@@ -67,21 +67,21 @@ The basic 'sample-room-java' Git repository at [http://github.com/gameontext/sam
 
 This room adds a custom command, and adds code to create a query and then access a Watson Alchemy Data service. Here are the specific details for doing this.
 
-### 	1. Change the room description and full name
+### &nbsp;&nbsp;&nbsp;&nbsp;1. Change the room description and full name
 
 The basic room description information for the java room is located in "RoomDescription.java". That can be found at the 'src/main/java/org/gameontext/sample' directory. I changed the initialized values to what made sense for the Watson Alchemy API news room. Both the 'fullName' and the 'description' member variables for the RoomDescription class were updated.
 
 Note: once you edit this string the automated tests will begin to fail. Remember to use the `-DskipTests` argument when you do `mvn install`.
 
-### 	2. Copy the /ping command code to create a /news command
+### &nbsp;&nbsp;&nbsp;&nbsp;2. Copy the /ping command code to create a /news command
 
 Opening the 'RoomImplementation.java' file in the same directory, I copied the case "/ping" code block in order to make a case statement for the /news command. The "/ping" command is inside the switch statment that is inside the processCommand() method. 
 
-### 	3. Add String variables to build the query
+### &nbsp;&nbsp;&nbsp;&nbsp;3. Add String variables to build the query
 
 I could have concatenated 5 parts of the query together, but instead I decided to break out each URL section or argument into it's own variable for clarity. Finding out about how the query needed to be structured was basically a matter of looking at the demo here [http://querybuilder.alchemyapi.com/builder](http://querybuilder.alchemyapi.com/builder). I hard coded the base URL, the apiKey provided by Bluemix for the Alchemy service, and everything except the "keyword" that would be passed in via the "/news" command as a parameter. The basic room already parses the parameter for you and inside a variable called 'remainder'.
 
-### 	4. Add import statements for Json and URL objects
+### &nbsp;&nbsp;&nbsp;&nbsp;4. Add import statements for Json and URL objects
 
 These import statements were added:
 ```
@@ -92,7 +92,7 @@ import javax.json.JsonArray;
 import java.net.URL;
 ```
 
-### 	5. Add an 'extractURLsAndTitles' method
+### &nbsp;&nbsp;&nbsp;&nbsp;5. Add an 'extractURLsAndTitles' method
 ```
     public String extractURLsAndTitles(InputStream is){
         String results = "";
