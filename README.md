@@ -96,6 +96,8 @@ String re_turn = "enriched.url.title,enriched.url.url";
 	
 ```
 
+Notice that 'currentQuery' is used only if thre were problems trying to get data back, or parse it corrrectly, at which time it would be returned to the 'user'.  
+
 Finding out about how the query needed to be structured was basically a matter of looking at the demo here [http://querybuilder.alchemyapi.com/builder](http://querybuilder.alchemyapi.com/builder). I hard coded the base URL, the apiKey provided by Bluemix for the Alchemy service, and everything except the "keyword" that would be passed in via the "/news" command as a parameter. The basic room already parses the parameter for you and inside a variable called 'remainder'.
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;4. Add import statements for Json and URL objects
@@ -107,6 +109,13 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonArray;
 import java.net.URL;
+```
+
+### &nbsp;&nbsp;&nbsp;&nbsp;5. Set-up the API call to your Watson service
+
+```
+URL url = new URL(query);
+InputStream is = url.openStream();
 ```
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;5. Add an 'extractURLsAndTitles' method
@@ -139,6 +148,18 @@ import java.net.URL;
         return results;
     }
 ```
+
+### &nbsp;&nbsp;&nbsp;&nbsp;6. Call the 'extract' method
+
+Once you've made the call to the 'extractURLsAndTitles' method you take the string that is returned, already formatted in Markdown, and passit back to the room visitor in a message.
+
+```
+msg = extractURLsAndTitles(is);
+...
+endpoint.sendMessage(session,Message.createBroadcastEvent("Watson news response to " + username + ":\n " + msg));
+
+```
+
 
 ## Tips
 
