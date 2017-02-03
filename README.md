@@ -72,7 +72,9 @@ This room adds a custom command, and adds code to create a query and then access
 The basic room description information for the java room is located in "RoomDescription.java". That can be found at the *'src/main/java/org/gameontext/sample'* directory. I changed the initialized values to what made sense for the Watson Alchemy API news room. Both the 'fullName' and the 'description' member variables for the RoomDescription class were updated.
 
 Note: once you edit this string the automated tests will begin to fail. Remember to skip the tests when you compile: 
-&nbsp;&nbsp;&nbsp;&nbsp;`mvn install-DskipTests` argument when you do `mvn install`.
+
+&nbsp;&nbsp;&nbsp;&nbsp;`mvn install-DskipTests` 
+
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;2. Copy the '/ping' command code to create a '/news' command
 
@@ -92,11 +94,10 @@ String count = "100";
 String q_enriched_url_entities_entity = "|text=";
 String type = "company";
 String re_turn = "enriched.url.title,enriched.url.url";
-	currentQuery = query = baseURL + "?apikey=" + apikey + "&outputMode=" + outputMode + "&start=" + start + "&end=" + end + "&count=" + 
-	
+	currentQuery = query = baseURL + "?apikey=" + apikey + "&outputMode=" + outputMode + "&start=" + start + "&end=" + end + "&count=" + count + "&q.enriched.url.entities.entity=" + q_enriched_url_entities_entity + textKeywd + "|&return=" + re_turn;
 ```
 
-Notice that 'currentQuery' is used only if thre were problems trying to get data back, or parse it corrrectly, at which time it would be returned to the 'user'.  
+Notice that 'currentQuery' is used only if there were problems trying to get data back, or parse it corrrectly, at which time it would be returned for help with debugging.  
 
 Finding out about how the query needed to be structured was basically a matter of looking at the demo here [http://querybuilder.alchemyapi.com/builder](http://querybuilder.alchemyapi.com/builder). I hard coded the base URL, the apiKey provided by Bluemix for the Alchemy service, and everything except the "keyword" that would be passed in via the "/news" command as a parameter. The basic room already parses the parameter for you and inside a variable called 'remainder'.
 
@@ -161,9 +162,9 @@ endpoint.sendMessage(session,Message.createBroadcastEvent("Watson news response 
 ```
 
 
-## Tips
+## Tip
 
-Note that it is faster to do most of your code changes and then just run the maven commands rather than using the above methods to make your room public for code updates that can be tested without joining the room to GameOn!.
+Note that it is faster to do most of your code changes and periodically just run the maven commands rather than using the methods described above to "Make your room public" for pushing and testing each code update. If something can be tested without joining the room to GameOn!, then use the faster approach!
 
 
 ## Build a docker container
@@ -172,17 +173,14 @@ Creating a Docker image is straight-up: `docker build .` right from the root men
 
 A `docker-compose.yml` file is also there, which can be used to specify overlay volumes to allow local development without restarting the container. See the [Advanced Adventure for local development with Docker](https://book.gameontext.org/v/walkthrough/walkthroughs/local-docker.html) for a more detailed walkthrough.
 
-## Ok. So this thing is running... Now what?
-
-We know, this walkthrough was simple. You have a nice shiny service that has a REST API (/health),
-and emulates async messaging behavior via a WebSocket. So?
+## Other ways to make a Java room your own...
 
 The purpose of this text-based adventure is to help you grapple with microservices concepts and technologies
 while building something other than what you do for your day job (it can be easier to learn new things
 when not bogged down with old habits). This means that the simple service that should be humming along
 merrily with your name on it is the beginning of your adventures, rather than the end.
 
-Here is a small roadmap to this basic service, so you can go about making it your own:
+Here is the original roadmap to the basic java room, for making something of your own:
 
 * `org.gameontext.sample.RoomImplementation`
    This is class contains the core elements that make your microservice unique from others.
