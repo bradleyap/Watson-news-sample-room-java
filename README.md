@@ -149,7 +149,7 @@ InputStream is = url.openStream();
 		        }
                     }
                     catch(IndexOutOfBoundsException e){
-			
+			System.out.println(e.getMessage());
                     }
                 }
 		else results += "problem with this query: " + currentQuery;
@@ -163,7 +163,7 @@ InputStream is = url.openStream();
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;6. Call the 'extract' method
 
-Once you've made the call to the 'extractURLsAndTitles' method you take the string that is returned, already formatted in Markdown, and passit back to the room visitor in a message.
+Once you've made the call to the 'extractURLsAndTitles' method you take the string that is returned, already formatted in Markdown, and pass it back to the room visitor in a message.
 
 ```
 msg = extractURLsAndTitles(is);
