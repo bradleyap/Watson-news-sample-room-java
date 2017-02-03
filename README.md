@@ -57,7 +57,7 @@ If you were able to bring up the form page, it provides some key information and
 1. Click the `connect` button
 2. Try entering some "User Initiated Commmands" 
 
-This particular room has a "/news" command which you can try out. Just type "/news" followed by the name of a company and then click on . 
+This particular room has a "/news" command which you can try out. Just type "/news" followed by the name of a company and push the `ENTER` key. 
 
 ```
 /news Pivotal
