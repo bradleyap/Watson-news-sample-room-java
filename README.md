@@ -2,20 +2,20 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/4d099084aab34a57893e8fd29df79ae3)](https://www.codacy.com/app/gameontext/sample-room-java?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gameontext/sample-room-java&amp;utm_campaign=Badge_Grade)
 
-[Game On!](https://game-on.org/) is both a sample microservices application, and a throwback text adventure brought to you by the WASdev team at IBM. This application demonstrates how microservice architectures work from two points of view:
+[Game On!](https://gameontext.org/) is both a sample microservices application, and a throwback text adventure brought to you by the WASdev team at IBM. This application demonstrates how microservice architectures work from two points of view:
 
 1. As a Player: navigate through a network/maze of rooms, and interact with other players and the items or actions available in each room.
 2. As a Developer: extend the game by creating simple services that define rooms. Learn about microservice architectures and their supporting infrastructure as you build and scale your service.
 
-You can learn more about Game On! at [http://game-on.org/](http://game-on.org/).
+You can learn more about Game On! at [http://gameontext.org/](http://gameontext.org/).
 
 ## Introduction
 
-This walkthrough will guide you through creating and deploying a simple room (a microservice) to the running Game On! application. This microservice is written in Java as a web application deployed on Websphere Liberty.
+This walkthrough will guide you through creating and deploying a java room (a microservice) that allows visitors to query the Watson Alchemy Data News service for the Game On! application. This microservice is written in Java as a web application deployed on Websphere Liberty.
 
-The microservice can be (a) deployed as a Cloud Foundry application or (b) built into a docker container.
+The microservice in this example will be built into a docker container.
 
-Game On! communicates with this service (a room) over WebSockets using the [Game On! WebSocket protocol](https://book.game-on.org/microservices/WebSocketProtocol.html). Consider this a stand-in for asynchronous messaging like MQTT, which requires a lot more setup than a simple WebSocket does.
+Game On! communicates with this service (a room) over WebSockets using the [Game On! WebSocket protocol](https://book.gameontext.org/microservices/WebSocketProtocol.html). Consider this a stand-in for asynchronous messaging like MQTT, which requires a lot more setup than a simple WebSocket does.
 
 ## Requirements
 
@@ -28,8 +28,8 @@ Game On! communicates with this service (a room) over WebSockets using the [Game
 
 ## Let's get started!
 
-1. Create your own fork of this repository ([what's a fork?](https://help.github.com/articles/fork-a-repo/))
-2. Create a local clone of your fork ([Cloning a repository](https://help.github.com/articles/cloning-a-repository/))
+1. Create a clone or your own fork of this repository ([what's a fork?](https://help.github.com/articles/fork-a-repo/))
+2. If applicable, create a local clone of your fork ([Cloning a repository](https://help.github.com/articles/cloning-a-repository/))
 
 ## Add your own Watson Alchemy API key to the code
 1. Create a Bluemix account
@@ -41,7 +41,7 @@ Game On! communicates with this service (a room) over WebSockets using the [Game
 
 ## Build the service locally
 
-1. `cd sample-room-java`
+1. `cd Watson-news-sample-room-java`
 2. `mvn install -DskipTests`
     Note: currently the Room Description changes that are permanently part of this java room will require you to skip the tests that are testing on hard coded descriptions of a room
 3. `mvn liberty:run-server`
@@ -50,18 +50,88 @@ After running this, the server will be running locally at [http://localhost:9080
 * Visiting this page provides a small form you can use to test the WebSocket endpoint in your service directly.
 * A health URL is also defined by the service, at http://localhost:9080/health
 
+### Interacting with the Watson News Service Room
+
+This room has a command "/news" that will precede the name of a company you will type as an argument. The text you get back in the form test page will have markdown in it, but will be formatted nicely when you follow the steps below and visitors go to the GameOn! Watson News room  
+
 ## Make your room public!
 
 For Game On! to include your room, you need to tell it where the publicly reachable WebSocket endpoint is. This usually requires two steps:
 
-* [hosting your service somewhere with a publicly reachable endpoint](https://book.game-on.org/walkthroughs/createRoom.html#_deploy_your_room_to_a_publicly_reachable_location), and then
-* [registering your room with the game](https://book.game-on.org/v/walkthrough/walkthroughs/createRoom.html#_register_your_room).
+* [hosting your service somewhere with a publicly reachable endpoint](https://book.gameontext.org/walkthroughs/createRoom.html#_deploy_your_room_to_a_publicly_reachable_location), and then
+* [registering your room with the game](https://book.gameontext.org/v/walkthrough/walkthroughs/createRoom.html#_register_your_room).
+
+## Development walkthrough - going from a basic java room to the news room
+
+The basic 'sample-room-java' Git repository at [http://github.com/gameontext/sample-room-java](http://github.com/gameontext/sample-room-java) would normally be forked and then cloned locally. This room, once compiled and stood up in a publicly accessible location, and then registered with GameOn!, can be visited by anyone who goes to the gameontext.org site, but there's not much that is special about the basic room. It needs to be made unique and fun, and there limitless ways to do that. 
+
+This room adds a custom command, and adds code to create a query and then access a Watson Alchemy Data service. Here are the specific details for doing this.
+
+### 1. Change the room description and full name
+
+The basic room description information for the java room is located in "RoomDescription.java". That can be found at the 'src/main/java/org/gameontext/sample' directory. I changed the initialized values to what made sense for the Watson Alchemy API news room. Both the 'fullName' and the 'description' member variables for the RoomDescription class were updated.
+
+Note: once you edit this string the automated tests will begin to fail. Remember to use the `-DskipTests` argument when you do `mvn install`.
+
+### 2. Copy the /ping command code to create a /news command
+
+Opening the 'RoomImplementation.java' file in the same directory, I copied the case "/ping" code block in order to make a case statement for the /news command. The "/ping" command is inside the switch statment that is inside the processCommand() method. 
+
+### 3. Add String variables to build the query
+
+I could have concatenated 5 parts of the query together, but instead I decided to break out each URL section or argument into it's own variable for clarity. Finding out about how the query needed to be structured was basically a matter of looking at the demo here [http://querybuilder.alchemyapi.com/builder](http://querybuilder.alchemyapi.com/builder). I hard coded the base URL, the apiKey provided by Bluemix for the Alchemy service, and everything except the "keyword" that would be passed in via the "/news" command as a parameter. The basic room already parses the parameter for you and inside a variable called 'remainder'.
+
+### 4. Add import statements for Json and URL objects
+
+These import statements were added:
+```
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonArray;
+import java.net.URL;
+```
+
+### 5. Add an 'extractURLsAndTitles' method
+```
+    public String extractURLsAndTitles(InputStream is){
+        String results = "";
+        JsonReader jsonReader = Json.createReader(is);
+        JsonObject jsonob = jsonReader.readObject();
+        if(jsonob.containsKey("result")){
+            if((jsonob.getJsonObject("result")).containsKey("docs")){
+                JsonArray arr = (JsonArray)jsonob.getJsonObject("result").get("docs");
+                }
+                if(arr != null){
+                    try{
+		        for(int i = 0; !arr.isNull(i); i++){
+                            //double quotes surround getString return values
+	                    results += "[" + arr.getJsonObject(i).getJsonObject("source").getJsonObject("enriched").getJsonObject("url").getString("title","title") + "]";
+	                    results += "(" + arr.getJsonObject(i).getJsonObject("source").getJsonObject("enriched").getJsonObject("url").getString("url","not available") + ")  \n";
+		        }
+                    }
+                    catch(IndexOutOfBoundsException e){
+			
+                    }
+                }
+		else results += "problem with this query: " + currentQuery;
+            }
+        }
+        else results += "problem with this query: " + currentQuery;
+        jsonReader.close();
+        return results;
+    }```
+
+## Tips
+
+Note that it is faster to do most of your code changes and then just run the maven commands rather than using the above methods to make your room public for code updates that can be tested without joining the room to GameOn!.
+
 
 ## Build a docker container
 
 Creating a Docker image is straight-up: `docker build .` right from the root menu.
 
-A `docker-compose.yml` file is also there, which can be used to specify overlay volumes to allow local development without restarting the container. See the [Advanced Adventure for local development with Docker](https://book.game-on.org/v/walkthrough/walkthroughs/local-docker.html) for a more detailed walkthrough.
+A `docker-compose.yml` file is also there, which can be used to specify overlay volumes to allow local development without restarting the container. See the [Advanced Adventure for local development with Docker](https://book.gameontext.org/v/walkthrough/walkthroughs/local-docker.html) for a more detailed walkthrough.
 
 ## Ok. So this thing is running... Now what?
 
@@ -102,9 +172,9 @@ Things you might try:
 * Use RxJava to manage all of the connected WebSockets together as one event stream.
 * Call out to another API (NodeRed integration, Watson API, Weather API) to perform actions in the room.
 * Integrate this room with IFTTT, or Slack, or ...
-* .. other [Advanced Adventures](https://book.game-on.org/v/walkthrough/walkthroughs/createMore.html)!
+* .. other [Advanced Adventures](https://book.gameontext.org/v/walkthrough/walkthroughs/createMore.html)!
 
-Remember our https://game-on.org/#/terms. Most importantly, there are kids around: make your parents proud.
+Remember our https://gameontext.org/#/terms. Most importantly, there are kids around: make your parents proud.
 
 ## How the build works
 
