@@ -63,23 +63,40 @@ For Game On! to include your room, you need to tell it where the publicly reacha
 
 ## Development walkthrough - going from a basic java room to the news room
 
-The basic 'sample-room-java' Git repository at [http://github.com/gameontext/sample-room-java](http://github.com/gameontext/sample-room-java) would normally be forked and then cloned locally. This room, once compiled and stood up in a publicly accessible location, and then registered with GameOn!, can be visited by anyone who goes to the gameontext.org site, but there's not much that is special about the basic room. It needs to be made unique and fun, and there limitless ways to do that. 
+The basic 'sample-room-java' Git repository at [http://github.com/gameontext/sample-room-java](http://github.com/gameontext/sample-room-java) would normally be forked and then cloned locally. This room, once compiled and stood up in a publicly accessible location, and then registered with GameOn!, can be visited by anyone who goes to the gameontext.org site, but there's not much that is special about the basic room. It needs to be made unique and fun, and there are limitless ways to do that. 
 
 This room adds a custom command, and adds code to create a query and then access a Watson Alchemy Data service. Here are the specific details for doing this.
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;1. Change the room description and full name
 
-The basic room description information for the java room is located in "RoomDescription.java". That can be found at the 'src/main/java/org/gameontext/sample' directory. I changed the initialized values to what made sense for the Watson Alchemy API news room. Both the 'fullName' and the 'description' member variables for the RoomDescription class were updated.
+The basic room description information for the java room is located in "RoomDescription.java". That can be found at the *'src/main/java/org/gameontext/sample'* directory. I changed the initialized values to what made sense for the Watson Alchemy API news room. Both the 'fullName' and the 'description' member variables for the RoomDescription class were updated.
 
-Note: once you edit this string the automated tests will begin to fail. Remember to use the `-DskipTests` argument when you do `mvn install`.
+Note: once you edit this string the automated tests will begin to fail. Remember to skip the tests when you compile: 
+&nbsp;&nbsp;&nbsp;&nbsp;`mvn install-DskipTests` argument when you do `mvn install`.
 
-### &nbsp;&nbsp;&nbsp;&nbsp;2. Copy the /ping command code to create a /news command
+### &nbsp;&nbsp;&nbsp;&nbsp;2. Copy the '/ping' command code to create a '/news' command
 
-Opening the 'RoomImplementation.java' file in the same directory, I copied the case "/ping" code block in order to make a case statement for the /news command. The "/ping" command is inside the switch statment that is inside the processCommand() method. 
+Opening the 'RoomImplementation.java' file in the same directory, I copied the case statements from the "/ping" code block for my new '/news' command. The '/ping' command is inside the switch statment that is inside the processCommand() method. 
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;3. Add String variables to build the query
 
-I could have concatenated 5 parts of the query together, but instead I decided to break out each URL section or argument into it's own variable for clarity. Finding out about how the query needed to be structured was basically a matter of looking at the demo here [http://querybuilder.alchemyapi.com/builder](http://querybuilder.alchemyapi.com/builder). I hard coded the base URL, the apiKey provided by Bluemix for the Alchemy service, and everything except the "keyword" that would be passed in via the "/news" command as a parameter. The basic room already parses the parameter for you and inside a variable called 'remainder'.
+I could have concatenated 5 parts of the query together, but instead I decided to break out each URL section or argument into it's own variable for clarity.
+
+```
+String baseURL = "https://gateway-a.watsonplatform.net/calls/data/GetNews";
+String apikey = "1aa8d3a512615040a135b384096d50aedb6e5c43";
+String outputMode = "json";
+String start = "now-1d";
+String end = "now";
+String count = "100";
+String q_enriched_url_entities_entity = "|text=";
+String type = "company";
+String re_turn = "enriched.url.title,enriched.url.url";
+	currentQuery = query = baseURL + "?apikey=" + apikey + "&outputMode=" + outputMode + "&start=" + start + "&end=" + end + "&count=" + 
+	
+```
+
+Finding out about how the query needed to be structured was basically a matter of looking at the demo here [http://querybuilder.alchemyapi.com/builder](http://querybuilder.alchemyapi.com/builder). I hard coded the base URL, the apiKey provided by Bluemix for the Alchemy service, and everything except the "keyword" that would be passed in via the "/news" command as a parameter. The basic room already parses the parameter for you and inside a variable called 'remainder'.
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;4. Add import statements for Json and URL objects
 
