@@ -52,9 +52,12 @@ After running this, the server will be running locally at [http://localhost:9080
 
 ## Interacting with the Watson News Service Room
 
-If you were able to bring up the form page, it provides some key information and allows you to send messages to your room. You can try out commands and do other things that test the Java room you have just stood up. 
+If you were able to bring up the form page, it provides some key information and allows you to send messages to your room. You can try out commands and do other things that test the Java room you have just stood up.
 
-This particular room has a "/news" command which you ca try out. Just type "/news" followed by the name of a company and then click on . 
+1. Click the `connect` button
+2. Try entering some "User Initiated Commmands" 
+
+This particular room has a "/news" command which you can try out. Just type "/news" followed by the name of a company and then click on . 
 
 ```
 /news Pivotal
